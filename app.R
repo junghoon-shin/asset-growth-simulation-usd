@@ -1,19 +1,24 @@
 library(magrittr)
 library(shiny)
 library(tidyverse)
+library(shinythemes)
 
 ui = fluidPage(
     
-    wellPanel(
-        fluidRow(
-            column(6,
-                   sliderInput("initial", "Initial investment (thousand $)", min = 1, max = 500, value = 20),
-                   sliderInput("monthly", "Investment per month (hundred $)", min = 1, max = 500, value = 50),
-                   sliderInput("increment", "Investment increment per year (%)", min = 0, max = 100, value = 5)),
-            column(6, 
-                   sliderInput("profit", "Target profit (%)", min = 0, max = 100, value = 20),
-                   sliderInput("inflation", "Inflation (%)", min = 0, max = 20, value = 2),
-                   sliderInput("duration", "Period (years)", min = 1, max = 50, value = 30))
+    titlePanel("Asset growth simulation"),
+    
+    hr(),
+    
+    fluidRow(
+        column(6,
+               sliderInput("initial", "Initial investment (thousand $)", min = 1, max = 500, value = 20, width = "100%"),
+               sliderInput("monthly", "Investment per month (hundred $)", min = 1, max = 500, value = 50, width = "100%"),
+               sliderInput("increment", "Investment increment per year (%)", min = 0, max = 100, value = 5, width = "100%")
+        ),
+        column(6, 
+               sliderInput("profit", "Target profit (%)", min = 0, max = 100, value = 20, width = "100%"),
+               sliderInput("inflation", "Inflation (%)", min = 0, max = 20, value = 2, width = "100%"),
+               sliderInput("duration", "Period (years)", min = 1, max = 50, value = 30, width = "100%")
         )
     ),
     
@@ -22,7 +27,7 @@ ui = fluidPage(
     plotOutput("growth")
     
 )
-
+?fluidRow
 
 server = function(input, output) {
     
