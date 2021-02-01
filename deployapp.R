@@ -1,3 +1,0 @@
-library(rsconnect)
-
-deployApp()

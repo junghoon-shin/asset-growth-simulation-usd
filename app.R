@@ -5,6 +5,8 @@ library(shinythemes)
 library(grid)
 library(plotly)
 
+# Install font
+
 # Set ggplot2 theme
 
 theme_set(theme_bw(base_family = "Lato"))
@@ -29,6 +31,14 @@ final_return = Vectorize(final_return, "duration")
 
 ui = fluidPage(
     
+    tags$head(
+        tags$style(HTML("
+            @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap');
+            body {
+                font-family: Lato, 'Open Sans', sans-serif;
+            }"))
+    ),
+    
     titlePanel("Asset growth simulation"),
     
     hr(),
@@ -48,7 +58,7 @@ ui = fluidPage(
     
     hr(),
     
-    plotlyOutput("total_area")
+    plotlyOutput("total_area", width = "100%", height = "600px")
 )
 
 # Instruct the server
@@ -80,7 +90,6 @@ server = function(input, output) {
             ggplot(mapping = aes(x = year, y = asset)) +
             geom_line(mapping = aes(color = adjustment), size = 1) +
             scale_x_continuous(expand = c(0, 0)) +
-            scale_y_continuous(trans = "log10") +
             scale_color_brewer(type = "qual", guide = guide_legend(title = NULL)) +
             labs(x = "Years from now", y = "Asset (million USD)") +
             theme(legend.key = element_rect(fill = "transparent"), 
@@ -90,12 +99,9 @@ server = function(input, output) {
     output$total_area = renderPlotly({
         ggplotly(base_plot(),
                  tooltip = c("year", "asset")) %>%
-            layout(xaxis = list(title = list(font = list(family = "Lato")), 
-                                tickfont = list(family = "Lato")),
-                   yaxis = list(title = list(font = list(family = "Lato")),
-                                tickfont = list(family = "Lato")),
-                   legend = list(x = 0.03, y = 0.95,
-                                 font = list(family = "Lato", size = 14)))
+            layout(xaxis = list(title = list(font = list(family = "Lato")), tickfont = list(family = "Lato")),
+                   yaxis = list(title = list(font = list(family = "Lato")), tickfont = list(family = "Lato")),
+                   legend = list(x = 0.03, y = 0.95, font = list(family = "Lato", size = 14)))
     })
 }
 
