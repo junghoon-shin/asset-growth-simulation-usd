@@ -27,14 +27,15 @@ ui = fluidPage(
     
     hr(),
     
-    textO
-    
-    hr3("")
-    helpText("In the plot below, You can drag any area to see "),
-    
     plotOutput("total_area",
                click = clickOpts("mouse_click"),
                brush = brushOpts("mouse_drag")),
+    
+    textOutput("total_area_title"),
+    
+    helpText("Click on any point within the plot area to see the coordinate. To zoom in, hold down the left mouse button and drag around the area you are interested in. The selected area will be shown in Plot 2."),
+    
+    hr(),
     
     plotOutput("dragged_area")
 )
@@ -140,6 +141,8 @@ server = function(input, output) {
         base_plot() + coord_cartesian(xlim = drag_xlim(), ylim = drag_ylim())
         
     })
+    
+    output$total_area_title = renderText(str_c("Plot 1. Simulation results of asset growth over the next ", input$duration, " years"))
     
     output$total_area = renderPlot(total_area())
     
