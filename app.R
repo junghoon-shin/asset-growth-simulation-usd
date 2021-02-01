@@ -58,12 +58,12 @@ ui = fluidPage(
     
     hr(),
     
-    plotlyOutput("total_area", width = "100%", height = "600px")
+    plotlyOutput("total_area", width = "100%", height = "auto")
 )
 
 # Instruct the server
 
-server = function(input, output) {
+server = function(input, output, session) {
     
     # Simulate the scenario to get a reactive result table
     
@@ -80,7 +80,8 @@ server = function(input, output) {
             bind_rows(tibble(unadjusted = input$initial/1000, adjusted = input$initial/1000, `Years from now` = 0), .) %>%
             pivot_longer(-`Years from now`, names_to = "adjustment", values_to = "Asset (million USD)") %>%
             mutate(adjustment = case_when(adjustment == "unadjusted" ~ "Total return",
-                                          adjustment == "adjusted" ~ "Inflation-adjusted return"))
+                                          adjustment == "adjusted" ~ "Inflation-adjusted return") %>%
+                     factor(levels = c("Total return", "Inflation-adjusted return")))
     })
     
     # Draw the simulation result as a reactive ggplot
@@ -97,6 +98,7 @@ server = function(input, output) {
     
     output$total_area = renderPlotly({
         ggplotly(base_plot(),
+                 height = session$clientData$output_total_area_width/2,
                  tooltip = c("Years from now", "Asset (million USD)")) %>%
             layout(xaxis = list(title = list(font = list(family = "Lato")), tickfont = list(family = "Lato")),
                    yaxis = list(title = list(font = list(family = "Lato")), tickfont = list(family = "Lato")),
