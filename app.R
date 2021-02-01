@@ -76,9 +76,9 @@ server = function(input, output) {
                      inflation = 1 + input$inflation/100) %>% 
             t %>% 
             as_tibble %>%
-            mutate(year = row_number()) %>%
-            bind_rows(tibble(unadjusted = input$initial/1000, adjusted = input$initial/1000, year = 0), .) %>%
-            pivot_longer(-year, names_to = "adjustment", values_to = "asset") %>%
+            mutate(`Years from now` = row_number()) %>%
+            bind_rows(tibble(unadjusted = input$initial/1000, adjusted = input$initial/1000, `Years from now` = 0), .) %>%
+            pivot_longer(-`Years from now`, names_to = "adjustment", values_to = "Asset (million USD)") %>%
             mutate(adjustment = case_when(adjustment == "unadjusted" ~ "Total return",
                                           adjustment == "adjusted" ~ "Inflation-adjusted return"))
     })
@@ -87,18 +87,17 @@ server = function(input, output) {
     
     base_plot = reactive({
         return_simulation() %>% 
-            ggplot(mapping = aes(x = year, y = asset)) +
+            ggplot(mapping = aes(x = `Years from now`, y = `Asset (million USD)`)) +
             geom_line(mapping = aes(color = adjustment), size = 1) +
             scale_x_continuous(expand = c(0, 0)) +
             scale_color_brewer(type = "qual", guide = guide_legend(title = NULL)) +
-            labs(x = "Years from now", y = "Asset (million USD)") +
             theme(legend.key = element_rect(fill = "transparent"), 
                   legend.background = element_rect(fill = "transparent"))
     })
     
     output$total_area = renderPlotly({
         ggplotly(base_plot(),
-                 tooltip = c("year", "asset")) %>%
+                 tooltip = c("Years from now", "Asset (million USD)")) %>%
             layout(xaxis = list(title = list(font = list(family = "Lato")), tickfont = list(family = "Lato")),
                    yaxis = list(title = list(font = list(family = "Lato")), tickfont = list(family = "Lato")),
                    legend = list(x = 0.03, y = 0.95, font = list(family = "Lato", size = 14)))

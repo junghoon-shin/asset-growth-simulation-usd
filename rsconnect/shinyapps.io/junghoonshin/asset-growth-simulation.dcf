@@ -5,8 +5,8 @@ account: junghoonshin
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3553385
-bundleId: 4166663
+bundleId: 4166747
 url: https://junghoonshin.shinyapps.io/asset-growth-simulation/
-when: 1612178242.90913
+when: 1612179909.96776
 asMultiple: FALSE
 asStatic: FALSE
