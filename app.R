@@ -14,20 +14,21 @@ theme_set(theme_bw(base_family = "Lato"))
 
 qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
 qual_col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals))) %>% unique
-line_color = qual_col_vector[5:6]
+line_color = qual_col_vector[c(5:6, 52)]
 
 # Define functions
 
-annual_return = function(initial_investment, annual_increment, profit, duration, year) {
-    sum(initial_investment * annual_increment^(year - 1) * profit^(1:12/12)) * profit^(duration - year)
+annual_return = function(monthly_investment, annual_increment, profit, duration, year) {
+    sum(monthly_investment * annual_increment^(year - 1) * profit^(1:12/12)) * profit^(duration - year)
 }
 
 annual_return = Vectorize(annual_return, "year")
 
-final_return = function(principal, initial_investment, annual_increment, profit, duration, inflation) {
-    unadjusted_return = (principal * profit^duration) + sum(annual_return(initial_investment, annual_increment, profit, duration, 1:duration))
-    adjusted_return = ((principal * profit^duration) + sum(annual_return(initial_investment, annual_increment, profit, duration, 1:duration))) / inflation^duration
-    return(c(unadjusted = unadjusted_return, adjusted = adjusted_return))
+final_return = function(initial, monthly_investment, annual_increment, profit, duration, inflation) {
+    total_input = initial + sum(monthly_investment * 12 * annual_increment^(0:(duration - 1)))
+    unadjusted_return = (initial * profit^duration) + sum(annual_return(monthly_investment, annual_increment, profit, duration, 1:duration))
+    adjusted_return = ((initial * profit^duration) + sum(annual_return(monthly_investment, annual_increment, profit, duration, 1:duration))) / inflation^duration
+    return(c(total_input = total_input, unadjusted = unadjusted_return, adjusted = adjusted_return))
 }
 
 final_return = Vectorize(final_return, "duration")
@@ -73,8 +74,8 @@ server = function(input, output, session) {
     # Simulate the scenario to get a reactive result table
     
     return_simulation = reactive({
-        final_return(principal = input$initial/1000,
-                     initial_investment = input$monthly/10000,
+        final_return(initial = input$initial/1000,
+                     monthly_investment = input$monthly/10000,
                      annual_increment = 1 + input$increment/100, 
                      profit = 1 + input$profit/100, 
                      duration = 1:input$duration,
@@ -82,19 +83,20 @@ server = function(input, output, session) {
             t %>% 
             as_tibble %>%
             mutate(`Years from now` = row_number()) %>%
-            bind_rows(tibble(unadjusted = input$initial/1000, adjusted = input$initial/1000, `Years from now` = 0), .) %>%
-            pivot_longer(-`Years from now`, names_to = "adjustment", values_to = "Asset (million USD)") %>%
-            mutate(adjustment = case_when(adjustment == "unadjusted" ~ "Total return",
-                                          adjustment == "adjusted" ~ "Inflation-adjusted return") %>%
-                     factor(levels = c("Total return", "Inflation-adjusted return")))
+            bind_rows(tibble(total_input = input$initial/1000, unadjusted = input$initial/1000, adjusted = input$initial/1000, `Years from now` = 0), .) %>%
+            pivot_longer(-`Years from now`, names_to = "category", values_to = "Amount (million USD)") %>%
+            mutate(category = case_when(category == "total_input" ~ "Total input",
+                                        category == "unadjusted" ~ "Total return",
+                                        category == "adjusted" ~ "Inflation-adjusted return") %>%
+                     factor(levels = c("Total return", "Inflation-adjusted return", "Total input")))
     })
     
     # Draw the simulation result as a reactive ggplot
     
     base_plot = reactive({
         return_simulation() %>% 
-            ggplot(mapping = aes(x = `Years from now`, y = `Asset (million USD)`)) +
-            geom_line(mapping = aes(color = adjustment)) +
+            ggplot(mapping = aes(x = `Years from now`, y = `Amount (million USD)`)) +
+            geom_line(mapping = aes(color = category)) +
             scale_x_continuous(expand = c(0, 0)) +
             scale_color_manual(values = line_color, guide = guide_legend(title = NULL)) +
             theme(legend.key = element_rect(fill = "transparent"), 
@@ -104,7 +106,7 @@ server = function(input, output, session) {
     output$total_area = renderPlotly({
         ggplotly(base_plot(),
                  height = session$clientData$output_total_area_width/1.4,
-                 tooltip = c("Years from now", "Asset (million USD)")) %>%
+                 tooltip = c("Years from now", "Amount (million USD)")) %>%
             layout(legend = list(x = 0.03, y = 0.95, font = list(size = 14)))
     })
 }
