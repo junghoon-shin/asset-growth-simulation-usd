@@ -1,12 +1,11 @@
 name: asset-growth-simulation-usd
-title: asset-growth-simulation-usd
+title:
 username:
 account: junghoonshin
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3558653
-bundleId: 4174720
+bundleId: 4798240
 url: https://junghoonshin.shinyapps.io/asset-growth-simulation-usd/
-when: 1612338784.67282
-asMultiple: FALSE
-asStatic: FALSE
+when: 1625723991.41052
+lastSyncTime: 1625723991.41056
