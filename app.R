@@ -53,11 +53,11 @@ ui = fluidPage(
         column(6,
                sliderInput("initial", "Initial investment (thousand $)", min = 1, max = 200, value = 20, width = "100%"),
                sliderInput("monthly", "Investment per month (hundred $)", min = 1, max = 200, value = 50, width = "100%"),
-               sliderInput("increment", "Investment increment per year (%)", min = 0, max = 100, value = 5, width = "100%")
+               sliderInput("increment", "Increment of monthly investment per year (%)", min = 0, max = 100, value = 5, width = "100%")
         ),
         column(6, 
-               sliderInput("profit", "Target profit (%)", min = 0, max = 100, value = 20, width = "100%"),
-               sliderInput("inflation", "Inflation (%)", min = 0, max = 20, value = 2, width = "100%"),
+               sliderInput("profit", "Target annual profit (%)", min = 0, max = 100, value = 20, width = "100%"),
+               sliderInput("inflation", "Annual inflation (%)", min = 0, max = 20, value = 2, width = "100%"),
                sliderInput("duration", "Investment period (years)", min = 1, max = 50, value = 30, width = "100%")
         )
     ),
